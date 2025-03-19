@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Answer Key Checker</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background-color: #f4f4f9;
+    }
+    h1 {
+      text-align: center;
+    }
+    input, button {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+    button {
+      background-color: #007bff;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    #results {
+      margin-top: 20px;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      background-color: #fff;
+    }
+    #loading {
+      text-align: center;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>Answer Key Checker</h1>
+  <input type="text" id="url" placeholder="Enter the result page URL">
+  <button id="checkResults">Check Results</button>
+  <div id="loading">Processing...</div>
+  <div id="results"></div>
+
+  <script>
+    document.getElementById('checkResults').addEventListener('click', async () => {
+      const url = document.getElementById('url').value.trim();
+
+      if (!url) {
+        alert('Please enter a valid URL.');
+        return;
+      }
+
+      document.getElementById('loading').style.display = 'block';
+      document.getElementById('results').innerHTML = '';
+
+      try {
+        const response = await fetch('http://localhost:3000/check', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url }),
+        });
+
+        const data = await response.json();
+
+        document.getElementById('loading').style.display = 'none';
+
+        if (data.success) {
+          document.getElementById('results').innerHTML = `
+            <p><strong>Attempted Questions:</strong> ${data.attempted}</p>
+            <p><strong>Correct Answers:</strong> ${data.correct}</p>
+          `;
+        } else {
+          document.getElementById('results').innerHTML = `<p>Error: ${data.message}</p>`;
+        }
+      } catch (error) {
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('results').innerHTML = `<p>Error processing the URL.</p>`;
+        console.error(error);
+      }
+    });
+  </script>
+</body>
+</html>
